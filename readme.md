@@ -1,4 +1,5 @@
 # 🛠️ GUÍA TÉCNICA DE CONFIGURACIÓN DE REDES: VLANs Y INTER-VLAN
+<img width="1148" height="472" alt="Captura de pantalla 2026-10-05 083352" src="https://github.com/user-attachments/assets/145aed56-819c-45ed-bb37-cfd536dbcb41" />
 
 Este documento contiene la sintaxis exacta de Cisco IOS para configurar una red segmentada con tres VLANs y enrutamiento a través de un esquema **Router-on-a-Stick**.
 
