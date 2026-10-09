@@ -145,6 +145,7 @@ Máscara de subred para las VLAN de usuarios y gestión: `/24` (`255.255.255.0`)
 - **SW-Lab2-luismgl:** distribuye las VLANs a los dispositivos del edificio B.
 - **VLAN 111:** se configura como VLAN nativa en ambos extremos de cada enlace troncal.
 - **VLAN 99:** se utiliza para la gestión de la red.
+# Asignar nombre a los dispositivos con tus iniciales al final
 
 ## 5. Consideraciones importantes
 
