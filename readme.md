@@ -148,21 +148,12 @@ Máscara de subred para las VLAN de usuarios y gestión: `/24` (`255.255.255.0`)
 # Asignar nombre a los dispositivos con tus iniciales al final
 
 ## 5. Consideraciones importantes
-<p>
-  <span style="color: #4EC9B0;">Router&gt;</span>
-  <span style="color: #DCDCAA;">enable</span>
-</p>
-
-<p>
-  <span style="color: #4EC9B0;">Router#</span>
-  <span style="color: #DCDCAA;">configure terminal</span>
-</p>
-
-<p>
-  <span style="color: #4EC9B0;">Router(config)#</span>
-  <span style="color: #DCDCAA;">hostname</span>
-  <span style="color: #CE9178;">R1-Core-luismgl</span>
-</p>
+```diff
++ Router>enable
++ Router#configure terminal
++ Router(config)#hostname R1-Core-luismgl
+- Este texto aparecerá resaltado como una eliminación.
+```
 
 1. Crear las VLANs necesarias en los switches.
 2. Configurar los enlaces troncales con la VLAN nativa 111 en ambos extremos.
