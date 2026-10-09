@@ -152,6 +152,7 @@ Máscara de subred para las VLAN de usuarios y gestión: `/24` (`255.255.255.0`)
 + Router>enable
 + Router#configure terminal
 + Router(config)#hostname R1-Core-luismgl
+-R1-Core-luismgl(config)#
 ```
 
 1. Crear las VLANs necesarias en los switches.
