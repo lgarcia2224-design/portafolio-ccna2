@@ -1,4 +1,37 @@
-# titulo
+flowchart TB
+    R1["R1-Core<br/>G0/0/0<br/>Subinterfaces .10 .20 .30 .99 .111"]
+    CORE["SW-Core<br/>Núcleo de red"]
+    MGMT["PC-Gestión<br/>Fa0/9 · VLAN 99"]
+
+    LAB1["SW-Lab1<br/>Edificio A"]
+    LAB2["SW-Lab2<br/>Edificio B"]
+
+    R1 <-->|"Trunk 802.1Q"| CORE
+    CORE <-->|"Trunk VLAN 10,20,30,99"| LAB1
+    CORE <-->|"Trunk VLAN 10,20,30,99"| LAB2
+    CORE --- MGMT
+
+    subgraph A["Edificio A"]
+        LAB1 --- A10["3 PCs · VLAN 10"]
+        LAB1 --- A20["3 PCs · VLAN 20"]
+        LAB1 --- A30["1 PC · VLAN 30"]
+    end
+
+    subgraph B["Edificio B"]
+        LAB2 --- B10["3 PCs · VLAN 10"]
+        LAB2 --- B20["3 PCs · VLAN 20"]
+        LAB2 --- B30["1 PC · VLAN 30"]
+    end
+
+    classDef router fill:#1d4ed8,color:#fff,stroke:#1e40af
+    classDef core fill:#0f766e,color:#fff,stroke:#115e59
+    classDef access fill:#dbeafe,color:#172554,stroke:#2563eb
+    classDef endpoint fill:#f3f4f6,color:#111827,stroke:#9ca3af
+
+    class R1 router
+    class CORE core
+    class LAB1,LAB2 access
+    class MGMT,A10,A20,A30,B10,B20,B30 endpoint
 
 
 
