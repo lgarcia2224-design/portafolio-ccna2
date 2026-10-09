@@ -88,22 +88,61 @@ flowchart TB
     class PCG,A10,A20,A30,B10,B20,B30 pc
 ```
 
-## 3. Tabla de VLANs
+# 3.Tabla de direccionamiento IP y seguridad de red
 
-| VLAN | Nombre | Función | Ubicación |
-|---|---|---|---|
-| 10 | Administrativos | Equipos administrativos | SW-Lab1 y SW-Lab2 |
-| 20 | Alumnos | Equipos de alumnos | SW-Lab1 y SW-Lab2 |
-| 30 | Dirección | Equipo de dirección | SW-Lab1 y SW-Lab2 |
-| 99 | Gestión | PC de gestión | SW-Core, Fa0/9 |
-| 111 | VLAN nativa | Tráfico sin etiquetar en los trunks | Enlaces troncales |
+## 3.1 Tabla A: Dispositivos intermedios (routers y switches)
+
+Máscara de subred para las VLAN de usuarios y gestión: `/24` (`255.255.255.0`).
+
+| Dispositivo | Interfaz | VLAN | Dirección IP | Máscara | Gateway |
+|---|---|---:|---|---|---|
+| R1-Core-luismgl | G0/0/0.10 | 10 | 192.168.10.1 | 255.255.255.0 | No aplica |
+| R1-Core-luismgl | G0/0/0.20 | 20 | 192.168.20.1 | 255.255.255.0 | No aplica |
+| R1-Core-luismgl | G0/0/0.30 | 30 | 192.168.30.1 | 255.255.255.0 | No aplica |
+| R1-Core-luismgl | G0/0/0.99 | 99 | 192.168.99.1 | 255.255.255.0 | No aplica |
+| SW-Core-luismgl | VLAN 99 | 99 | 192.168.99.2 | 255.255.255.0 | 192.168.99.1 |
+| SW-Lab1-luismgl | VLAN 99 | 99 | 192.168.99.3 | 255.255.255.0 | 192.168.99.1 |
+| SW-Lab2-luismgl | VLAN 99 | 99 | 192.168.99.4 | 255.255.255.0 | 192.168.99.1 |
+
+**Nota:** Las direcciones IP de administración de los switches son propuestas. La VLAN 111 se utiliza como VLAN nativa y no necesita una dirección IP si solo transporta tráfico sin etiquetar. La VLAN 999 se reserva para puertos inactivos.
+
+## 3.2 Tabla B: Direccionamiento de dispositivos finales
+
+| Dispositivo | VLAN | Dirección IP | Máscara | Gateway |
+|---|---:|---|---|---|
+| PC-Gestión | 99 | 192.168.99.10 | 255.255.255.0 | 192.168.99.1 |
+| PC-Admin-A1 | 10 | 192.168.10.10 | 255.255.255.0 | 192.168.10.1 |
+| PC-Admin-A2 | 10 | 192.168.10.11 | 255.255.255.0 | 192.168.10.1 |
+| PC-Admin-A3 | 10 | 192.168.10.12 | 255.255.255.0 | 192.168.10.1 |
+| PC-Alumno-A1 | 20 | 192.168.20.10 | 255.255.255.0 | 192.168.20.1 |
+| PC-Alumno-A2 | 20 | 192.168.20.11 | 255.255.255.0 | 192.168.20.1 |
+| PC-Alumno-A3 | 20 | 192.168.20.12 | 255.255.255.0 | 192.168.20.1 |
+| PC-Dirección-A1 | 30 | 192.168.30.10 | 255.255.255.0 | 192.168.30.1 |
+| PC-Admin-B1 | 10 | 192.168.10.20 | 255.255.255.0 | 192.168.10.1 |
+| PC-Admin-B2 | 10 | 192.168.10.21 | 255.255.255.0 | 192.168.10.1 |
+| PC-Admin-B3 | 10 | 192.168.10.22 | 255.255.255.0 | 192.168.10.1 |
+| PC-Alumno-B1 | 20 | 192.168.20.20 | 255.255.255.0 | 192.168.20.1 |
+| PC-Alumno-B2 | 20 | 192.168.20.21 | 255.255.255.0 | 192.168.20.1 |
+| PC-Alumno-B3 | 20 | 192.168.20.22 | 255.255.255.0 | 192.168.20.1 |
+| PC-Dirección-B1 | 30 | 192.168.30.20 | 255.255.255.0 | 192.168.30.1 |
+
+## 3.3 Tabla C: Segmentación de VLAN
+
+| VLAN | Nombre | Red IPv4 | Función | Ubicación |
+|---:|---|---|---|---|
+| 10 | ADMINISTRACION | 192.168.10.0/24 | Equipos administrativos | SW-Lab1 y SW-Lab2 |
+| 20 | LABORATORIOS | 192.168.20.0/24 | Equipos de alumnos | SW-Lab1 y SW-Lab2 |
+| 30 | DIRECCION | 192.168.30.0/24 | Equipos de dirección | SW-Lab1 y SW-Lab2 |
+| 99 | GESTION | 192.168.99.0/24 | Administración de switches |SW-Core, Fa0/9 |
+| 111 | NATIVA | Sin IP por defecto | VLAN nativa de enlaces troncales | Enlaces troncales |
+| 999 | BLACKHOLE | Sin IP | Puertos no utilizados |
 
 ## 4. Configuración lógica
 
-- **R1-Core:** realiza el enrutamiento entre las VLANs mediante subinterfaces en G0/0/0.
-- **SW-Core:** conecta el router, SW-Lab1, SW-Lab2 y la PC de gestión.
-- **SW-Lab1:** distribuye las VLANs a los dispositivos del edificio A.
-- **SW-Lab2:** distribuye las VLANs a los dispositivos del edificio B.
+- **R1-Core-luismgl:** realiza el enrutamiento entre las VLANs mediante subinterfaces en G0/0/0.
+- **SW-Core-luismgl:** conecta el router, SW-Lab1, SW-Lab2 y la PC de gestión.
+- **SW-Lab1-luismgl:** distribuye las VLANs a los dispositivos del edificio A.
+- **SW-Lab2-luismgl:** distribuye las VLANs a los dispositivos del edificio B.
 - **VLAN 111:** se configura como VLAN nativa en ambos extremos de cada enlace troncal.
 - **VLAN 99:** se utiliza para la gestión de la red.
 
