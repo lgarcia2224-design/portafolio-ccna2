@@ -3,7 +3,7 @@
 ## 1. Diagrama de la topología
 
 ```text
-                 [ R1-Core (Router) ]
+                 [ R1-Core-luismgl (Router) ]
                           |
                           | G0/0/0
                           | Trunk 802.1Q
@@ -11,15 +11,15 @@
                           | VLANs 10, 20, 30, 99
                           | VLAN 111 nativa
                           |
-                     [ SW-Core ]
+                     [ SW-Core-luismgl ]
                        /       \
               (Trunk) /         \ (Trunk)
           VLAN 111 nativa     VLAN 111 nativa
                     /             \
-             [ SW-Lab1 ]       [ SW-Lab2 ]
+             [ SW-Lab1-luismgl ]       [ SW-Lab2-luismgl ]
              Edificio A        Edificio B
 
-     Dispositivos en SW-Lab1:       Dispositivos en SW-Lab2:
+     Dispositivos en SW-Lab1-luismgl:       Dispositivos en SW-Lab2-luismgl:
 
      ├── VLAN 10: 3 PCs Admin       ├── VLAN 10: 3 PCs Admin
      │   Fa0/1 - Fa0/3              │   Fa0/1 - Fa0/3
@@ -31,7 +31,7 @@
          Fa0/7                          Fa0/7
 
 
-     Conexión local de SW-Core:
+     Conexión local de SW-Core-luismgl:
 
      └── VLAN 99: 1 PC Gestión
          Puerto Fa0/9
@@ -41,14 +41,14 @@
 
 ```mermaid
 flowchart TB
-    R1["R1-Core<br/>Router Central<br/>G0/0/0<br/>Router-on-a-Stick"]
+    R1["R1-Core-luismgl<br/>Router Central<br/>G0/0/0<br/>Router-on-a-Stick"]
 
-    CORE["SW-Core<br/>Switch Núcleo"]
+    CORE["SW-Core-luismgl<br/>Switch Núcleo"]
 
     PCG["PC Gestión<br/>VLAN 99<br/>Fa0/9"]
 
-    LAB1["SW-Lab1<br/>Edificio A"]
-    LAB2["SW-Lab2<br/>Edificio B"]
+    LAB1["SW-Lab1-luismgl<br/>Edificio A"]
+    LAB2["SW-Lab2-luismgl<br/>Edificio B"]
 
     R1 <-->|"Trunk 802.1Q<br/>VLAN 10, 20, 30, 99<br/>VLAN 111 nativa"| CORE
 
