@@ -148,7 +148,7 @@ Máscara de subred para las VLAN de usuarios y gestión: `/24` (`255.255.255.0`)
 # Asignar nombre a los dispositivos con tus iniciales al final
 
 ## 5. Consideraciones importantes
-```console
+```bash
 Router>enable
 Router#configure terminal
 Router(config)#hostname R1-Core-luismgl
