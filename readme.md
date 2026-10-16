@@ -178,7 +178,7 @@ se reservan para las SVI de los tres switches.
 
 ------------------------------------------------------------------------
 
-## 4. Asignar nombre a los dispositivos con las iniciales LMGL
+## 4. Asignar nombre a los dispositivos con las iniciales LuisMGL
 
 Ejecuta en cada dispositivo, en modo privilegiado y luego en
 configuración global:
