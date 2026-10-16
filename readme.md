@@ -41,14 +41,14 @@
 
 ```mermaid
 flowchart TB
-    R1["R1-Core-luismgl<br/>Router Central<br/>G0/0/0<br/>Router-on-a-Stick"]
+    R1["R1-Core-LuisMGL<br/>Router Central<br/>G0/0/0<br/>Router-on-a-Stick"]
 
-    CORE["SW-Core-luismgl<br/>Switch Núcleo"]
+    CORE["SW-Core-LuisMGL<br/>Switch Núcleo"]
 
     PCG["PC Gestión<br/>VLAN 99<br/>Fa0/9"]
 
-    LAB1["SW-Lab1-luismgl<br/>Edificio A"]
-    LAB2["SW-Lab2-luismgl<br/>Edificio B"]
+    LAB1["SW-Lab1-LuisMGL<br/>Edificio A"]
+    LAB2["SW-Lab2-LuisMGL<br/>Edificio B"]
 
     R1 <-->|"Trunk 802.1Q<br/>VLAN 10, 20, 30, 99<br/>VLAN 111 nativa"| CORE
 
@@ -115,9 +115,9 @@ es `.1` y la última es `.254`.
 
 | Dispositivo | Interfaz VLAN | Dirección IP/CIDR | Gateway predeterminado |
 | :--- | :---: | :---: | :---: |
-| `SW-Core-luismgl` | `Vlan99` | `192.168.99.1/24` | `192.168.99.254` |
-| `SW-Lab1-luismgl` | `Vlan99` | `192.168.99.2/24` | `192.168.99.254` |
-| `SW-Lab2-luismgl` | `Vlan99` | `192.168.99.3/24` | `192.168.99.254` |
+| `SW-Core-LuisMGL` | `Vlan99` | `192.168.99.1/24` | `192.168.99.254` |
+| `SW-Lab1-LuisMGL` | `Vlan99` | `192.168.99.2/24` | `192.168.99.254` |
+| `SW-Lab2-LuisMGL` | `Vlan99` | `192.168.99.3/24` | `192.168.99.254` |
 
 ---
 
@@ -152,33 +152,308 @@ es `.1` y la última es `.254`.
 Ejecuta en cada dispositivo, en modo privilegiado y luego en
 configuración global:
 
-### Router --- `R1-Core-luismgl`
+### Router --- `R1-Core-LuisMGL`
 ``` text
-enable
-configure terminal
-hostname R1-Core-LuisMGL
+Router>enable
+Router#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R1-Core-LuisMGL
+R1-Core-LuisMGL(config)#
 ```
 
-### Switch central --- `SW-Core-luismgl`
+### Switch central --- `SW-Core-LuisMGL`
 ``` text
-enable
-configure terminal
-hostname SW-Core-LuisMGL
+Switch>enable
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#hostname SW-Core-LuisMGL
+SW-Core-LuisMGL(config)#
 ```
 
-### Switch de acceso 1 --- `SW-Lab1-luismgl`
+### Switch de acceso 1 --- `SW-Lab1-LuisMGL`
+
+``` text
+Switch>enable
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#hostname SW-Lab1-LuisMGL
+SW-Lab1-LuisMGL(config)#
+```
+### Switch de acceso 2 --- `SW-Lab2-LuisMGL`
+``` text
+Switch>enable
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#hostname SW-Lab2-LuisMGL
+SW-Lab2-LuisMGL(config)#
+
+```
+## 5. Configuración básica de seguridad en router y switches
+
+El documento solicita `enable secret`, cifrado de contraseñas de texto
+plano y `banner motd`. Usa una contraseña de práctica propia y
+consistente en los cuatro dispositivos;
+
+Ejecuta en **router y switchS**, después de establecer el
+`hostname`:
 
 ``` text
 enable
-configure terminal
-hostname SW-Lab1-LuisMGL
+config
+enable secret MODULO_PREFERIDO_MANEJOTE
+service password-encryption
+banner motd #ACCESO RESTRINGIDO: solo personal autorizado#
 ```
-### Switch de acceso 2 --- `SW-Lab2-luismgl`
+
+Para configurar una contraseña en la consola:
+
 ``` text
-enable
-configure terminal
-hostname SW-Lab2-LuisMGL
+line console 0
+password MODULO_PREFERIDO_MANEJOTE
+login
+exit
 ```
+Para la línea VTY, destinada al acceso remoto por terminal:
+``` text
+line vty 0 4
+password <CLAVE_VTY>
+login
+exit
+```
+
+Guarda la configuración al terminar el equipo:
+``` text
+end
+copy running-config startup-config
+```
+
+Cuando Packet Tracer pregunte por el nombre del archivo de destino,
+pulsa **Enter** para aceptar el valor predeterminado.
+
+------------------------------------------------------------------------
+## 5. Crear las VLAN 10, 20, 30, 99, 111 y 999
+
+Crea las VLAN en **los tres switches** (`SW-Core-LuisMGL`, `SW-Lab1-LuisMGL` y
+`SW-Lab2-LuisMGL`).
+
+``` text
+configure terminal
+vlan 10
+ name Administracion
+exit
+vlan 20
+ name Laboratorios
+exit
+vlan 30
+ name Direccion
+exit
+vlan 99
+ name Gestion
+exit
+vlan 111
+ name Nativa
+exit
+vlan 999
+ name Blackhole
+exit
+end
+```
+
+Verifica la creación:
+
+``` text
+show vlan brief
+```
+
+Comprueba que aparezcan las seis VLAN. La VLAN 999 se usará para los
+puertos que no estén en uso; no asignes a ella los puertos conectados a
+PCs ni los enlaces troncales.
+
+------------------------------------------------------------------------
+
+## 6. Asignar los puertos a las VLAN
+
+### 6.1 SW-Lab1-LuisMGL
+
+IRAN A:
+
+-   `Fa0/1` a `Fa0/3`: Administración, VLAN 10.
+-   `Fa0/4` a `Fa0/6`: Laboratorios/Alumnos, VLAN 20.
+-   `Fa0/7`: Dirección, VLAN 30.
+
+``` text
+SW-Lab1-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Lab1-LuisMGL(config)#interface range fastEthernet 0/1-3
+SW-Lab1-LuisMGL(config-if-range)# switchport mode access
+SW-Lab1-LuisMGL(config-if-range)# switchport access vlan 10
+SW-Lab1-LuisMGL(config-if-range)#exit
+SW-Lab1-LuisMGL(config)#interface range fastEthernet 0/4-6
+SW-Lab1-LuisMGL(config-if-range)# switchport mode access
+SW-Lab1-LuisMGL(config-if-range)# switchport access vlan 20
+SW-Lab1-LuisMGL(config-if-range)#exit
+SW-Lab1-LuisMGL(config)#interface fastEthernet 0/7
+SW-Lab1-LuisMGL(config-if)# switchport mode access
+SW-Lab1-LuisMGL(config-if)# switchport access vlan 30
+SW-Lab1-LuisMGL(config-if)#exit
+SW-Lab1-LuisMGL(config)#end
+```
+
+### 6.2 SW-Lab2-LuisMGL
+
+``` text
+SW-Lab2-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Lab2-LuisMGL(config)#interface range fastEthernet 0/1-3
+SW-Lab2-LuisMGL(config-if-range)# switchport mode access
+SW-Lab2-LuisMGL(config-if-range)# switchport access vlan 10
+SW-Lab2-LuisMGL(config-if-range)#exit
+SW-Lab2-LuisMGL(config)#interface range fastEthernet 0/4-6
+SW-Lab2-LuisMGL(config-if-range)# switchport mode access
+SW-Lab2-LuisMGL(config-if-range)# switchport access vlan 20
+SW-Lab2-LuisMGL(config-if-range)#exit
+SW-Lab2-LuisMGL(config)#interface fastEthernet 0/7
+SW-Lab2-LuisMGL(config-if)# switchport mode access
+SW-Lab2-LuisMGL(config-if)# switchport access vlan 30
+SW-Lab2-LuisMGL(config-if)#exit
+SW-Lab2-LuisMGL(config)#end
+SW-Lab2-LuisMGL#
+%SYS-5-CONFIG_I: Configured from console by console
+```
+
+### 6.3 SW-Core-LuisMGL: PC de gestión
+
+Coloca la PC de gestión en `Fa0/9`, VLAN 99.
+
+``` text
+SW-Core-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Core-LuisMGL(config)#interface fastEthernet 0/9
+SW-Core-LuisMGL(config-if)# switchport mode access
+SW-Core-LuisMGL(config-if)# switchport access vlan 99
+SW-Core-LuisMGL(config-if)# no shutdown
+SW-Core-LuisMGL(config-if)#exit
+SW-Core-LuisMGL(config)#end
+```
+
+**No asignes otros puertos de acceso del SW-Core a una VLAN de usuario
+sin que corresponda a un dispositivo del diagrama.** Los puertos del
+núcleo que conectan con el router y con los switches de laboratorio se
+configurarán como troncales en el siguiente apartado.
+
+### 6.4 Verificar la pertenencia a VLAN
+
+En cada switch:
+
+``` bash
+show vlan brief
+```
+
+Comprueba que `Fa0/1-Fa0/3`, `Fa0/4-Fa0/6` y `Fa0/7` estén en las VLAN
+indicadas en cada switch de laboratorio, y que `SW-Core-luismgl Fa0/9` esté
+en VLAN 99.
+
+------------------------------------------------------------------------
+## 7. Habilitar los enlaces troncales
+
+La VLAN nativa requerida es la **VLAN 111**. Configura los puertos que
+conectan switch con switch y el puerto del SW-Core que conecta al router
+como troncales, permitiendo las VLAN 10, 20, 30, 99 y 111.
+
+### 7.1 SW-Core-LuisMGL
+
+``` text
+SW-Core-LuisMGL(config)#interface Gig0/1
+SW-Core-LuisMGL(config-if)#switchport mode trunk
+SW-Core-LuisMGL(config-if)# switchport trunk native vlan 111
+SW-Core-LuisMGL(config-if)# switchport trunk allowed vlan 10,20,30,99,111
+SW-Core-LuisMGL(config-if)# no shutdown
+SW-Core-LuisMGL(config-if)#exit
+SW-Core-LuisMGL(config)#interface f0/24
+SW-Core-LuisMGL(config-if)# switchport mode trunk
+
+SW-Core-LuisMGL(config-if)# switchport trunk native vlan 111
+SW-Core-LuisMGL(config-if)# switchport trunk allowed vlan 10,20,30,99,111
+SW-Core-LuisMGL(config-if)# no shutdown
+SW-Core-LuisMGL(config-if)#exit
+SW-Core-LuisMGL(config)#interface f0/23
+SW-Core-LuisMGL(config-if)# switchport mode trunk
+
+SW-Core-LuisMGL(config-if)# switchport trunk native vlan 111
+SW-Core-LuisMGL(config-if)# switchport trunk allowed vlan 10,20,30,99,111
+SW-Core-LuisMGL(config-if)# no shutdown
+SW-Core-LuisMGL(config-if)#exit
+SW-Core-LuisMGL(config)#end
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/24, changed state to down
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/24, changed state to up
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/23, changed state to down
+
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/23, changed state to up
+
+SW-Core-LuisMGL#
+%SYS-5-CONFIG_I: Configured from console by console
+```
+
+Ejemplo de sustitución: si el cable hacia SW-Lab1 está conectado a
+`GigabitEthernet0/1`, escribe `interface gigabitEthernet 0/1` en lugar
+de `interface <INTERFAZ_LAB1>`. **No copies literalmente los marcadores
+`<...>` en la CLI.**
+
+### 7.2 SW-Lab1-LuisMGL
+
+Por el puerto que conecta al SW-Core.
+
+``` text
+SW-Lab1-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Lab1-LuisMGL(config)#interface fa0/24
+SW-Lab1-LuisMGL(config-if)# switchport mode trunk
+SW-Lab1-LuisMGL(config-if)# switchport trunk native vlan 111
+SW-Lab1-LuisMGL(config-if)# switchport trunk allowed vlan 10,20,30,99,111
+SW-Lab1-LuisMGL(config-if)# no shutdown
+SW-Lab1-LuisMGL(config-if)#exit
+SW-Lab1-LuisMGL(config)#end
+SW-Lab1-LuisMGL#
+%SYS-5-CONFIG_I: Configured from console by console
+```
+
+### 7.3 SW-Lab2-LuisMGL
+Por el puerto que conecta al SW-Core.
+
+``` text
+SW-Lab2-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Lab2-LuisMGL(config)#interface fa0/23
+SW-Lab2-LuisMGL(config-if)# switchport mode trunk
+SW-Lab2-LuisMGL(config-if)# switchport trunk native vlan 111
+SW-Lab2-LuisMGL(config-if)# switchport trunk allowed vlan 10,20,30,99,111
+SW-Lab2-LuisMGL(config-if)# no shutdown
+SW-Lab2-LuisMGL(config-if)#exit
+SW-Lab2-LuisMGL(config)#end
+SW-Lab2-LuisMGL#
+%SYS-5-CONFIG_I: Configured from console by console
+
+```
+
+> Si el modelo de switch seleccionado no admite alguno de los comandos
+> `switchport` mostrados, verifica el modelo y las capacidades de la
+> interfaz en Packet Tracer. No cambies la topología para ocultar el
+> error.
+
+### 7.4 Verificar los troncales
+En cada switch:
+
+``` text
+show interfaces trunk
+show interfaces <PUERTO_TRONCAL> switchport
+```
+
+Comprueba que los enlaces aparezcan como troncales, que la VLAN nativa
+sea 111 y que la lista permitida incluya `10,20,30,99,111`.
+
+------------------------------------------------------------------------
 
 
 ## 5. Consideraciones importantes
@@ -196,145 +471,3 @@ hostname SW-Lab2-LuisMGL
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 🛠️ GUÍA TÉCNICA DE CONFIGURACIÓN DE REDES: VLANs Y INTER-VLAN
-<img width="1148" height="472" alt="Captura de pantalla 2026-10-05 083352" src="https://github.com/user-attachments/assets/145aed56-819c-45ed-bb37-cfd536dbcb41" />
-
-Este documento contiene la sintaxis exacta de Cisco IOS para configurar una red segmentada con tres VLANs y enrutamiento a través de un esquema **Router-on-a-Stick**.
-
----
-
-## 📊 1. Resumen del Direccionamiento IP y Segmentación
-
-A continuación se detallan las subredes y las funciones asignadas a cada una de las redes virtuales:
-
-* **VLAN 10:** Datos de usuarios en la red local. (`LAN10`)
-* **VLAN 20:** Datos de usuarios secundarios. (`LAN20`)
-* **VLAN 99:** Red de administración interna. (`Management`)
-
-### 📌 Tabla de Asignación de Interfaces y Puertas de Enlace
-
-| Elemento de Red | ID / Interfaz | Dirección IP | Máscara de Subred | Función Principal |
-| :--- | :--- | :--- | :--- | :--- |
-| **VLAN 10** | Subinterfaz Gi0/0.10 | 192.168.10.1 | 255.255.255.0 | Gateway LAN 10 |
-| **VLAN 20** | Subinterfaz Gi0/0.20 | 192.168.20.1 | 255.255.255.0 | Gateway LAN 20 |
-| **VLAN 99** | Subinterfaz Gi0/0.99 | 192.168.99.1 | 255.255.255.0 | Gateway Administración |
-| **Switch SVI** | Interfaz Virtual VLAN 99 | 192.168.99.2 | 255.255.255.0 | IP de Gestión Remota |
-
----
-
-## 🎛️ 2. Configuración General en el Switch
-
-> ⚠️ **Importante:** Asegúrate de ejecutar el comando `enable` y `configure terminal` antes de ingresar las siguientes instrucciones en la consola.
-
-### 🔹 Bloque A: Creación y nombramiento de VLANs
-```ios
-vlan 10
- name LAN10
- exit
-
-vlan 20
- name LAN20
- exit
-
-vlan 99
- name Management
- exit
-```
-
-### 🔹 Bloque B: Asignación de IP de Gestión y Puerta de Enlace (SVI)
-```ios
-interface vlan 99
- ip add 192.168.99.2 255.255.255.0
- no shut
- exit
-
-ip default-gateway 192.168.99.1
-```
-
-### 🔹 Bloque C: Modos de Puertos (Acceso y Troncales)
-```ios
-interface fa0/6
- switchport mode access
- switchport access vlan 10
- no shut
- exit
-
-interface fa0/1
- switchport mode trunk
- no shut
- exit
-
-interface fa0/5
- switchport mode trunk
- no shut
- end
-```
-
----
-
-## 🔀 3. Configuración del Enrutamiento en el Router (Router-on-a-Stick)
-
-Para habilitar la comunicación entre diferentes VLANs, dividimos la interfaz física `gigabitEthernet0/0` en subinterfaces lógicas y aplicamos la encapsulación `dot1Q`.
-
-```ios
-enable
-configure terminal
-
-interface gigabitEthernet0/0
- no shutdown
- exit
-
-interface gigabitEthernet0/0.10
- encapsulation dot1Q 10
- ip address 192.168.10.1 255.255.255.0
- exit
-
-interface gigabitEthernet0/0.20
- encapsulation dot1Q 20
- ip address 192.168.20.1 255.255.255.0
- exit
-
-interface gigabitEthernet0/0.99
- encapsulation dot1Q 99
- ip address 192.168.99.1 255.255.255.0
- exit
-
-end
-```
-
----
-
-## 💾 4. Almacenamiento en Memoria No Volátil
-
-Una vez verificada la topología, debes guardar los cambios en la **NVRAM** para prevenir pérdidas tras un reinicio físico del hardware:
-
-```ios
-write memory
-```
-
----
-
-## 📋 5. Tareas Pendientes para el Administrador de Red
-
-- [ ] Verificar la tabla de VLANs con el comando `show vlan brief`.
-- [ ] Validar el estado de los enlaces troncales usando `show interfaces trunk`.
-- [ ] Hacer pruebas de conectividad (*ping*) desde un equipo de la VLAN 10 hacia la VLAN 20.
