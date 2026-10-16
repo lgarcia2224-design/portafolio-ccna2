@@ -3,7 +3,7 @@
 ## 1. Diagrama de la topología
 
 ```text
-                 [ R1-Core-luismgl (Router) ]
+                 [ R1-Core-LuisMGL (Router) ]
                           |
                           | G0/0/0
                           | Trunk 802.1Q
@@ -11,15 +11,15 @@
                           | VLANs 10, 20, 30, 99
                           | VLAN 111 nativa
                           |
-                     [ SW-Core-luismgl ]
+                     [ SW-Core-LuisMGL ]
                        /       \
               (Trunk) /         \ (Trunk)
           VLAN 111 nativa     VLAN 111 nativa
                     /             \
-             [ SW-Lab1-luismgl ]       [ SW-Lab2-luismgl ]
+             [ SW-Lab1-LuisMGL ]       [ SW-Lab2-LuisMGL ]
              Edificio A        Edificio B
 
-     Dispositivos en SW-Lab1-luismgl:       Dispositivos en SW-Lab2-luismgl:
+     Dispositivos en SW-Lab1-LuisMGL:       Dispositivos en SW-Lab2-LuisMGL:
 
      ├── VLAN 10: 3 PCs Admin       ├── VLAN 10: 3 PCs Admin
      │   Fa0/1 - Fa0/3              │   Fa0/1 - Fa0/3
@@ -31,7 +31,7 @@
          Fa0/7                          Fa0/7
 
 
-     Conexión local de SW-Core-luismgl:
+     Conexión local de SW-Core-LuisMGL:
 
      └── VLAN 99: 1 PC Gestión
          Puerto Fa0/9
@@ -88,73 +88,131 @@ flowchart TB
     class PCG,A10,A20,A30,B10,B20,B30 pc
 ```
 
-# 3.Tabla de direccionamiento IP y seguridad de red
+## 3. Tabla de direccionamiento
 
-## 3.1 Tabla A: Dispositivos intermedios (routers y switches)
+Todas las subredes indicadas para las VLAN 10, 20, 30 y 99 usan máscara
+`/24` (`255.255.255.0`). En cada subred, la primera dirección utilizable
+es `.1` y la última es `.254`.
 
-Máscara de subred para las VLAN de usuarios y gestión: `/24` (`255.255.255.0`).
+### 3.1 Tabla A. Infraestructura
 
-| Dispositivo | Interfaz | VLAN | Dirección IP | Máscara | Gateway |
-|---|---|---:|---|---|---|
-| R1-Core-luismgl | G0/0/0.10 | 10 | 192.168.10.1 | 255.255.255.0 | No aplica |
-| R1-Core-luismgl | G0/0/0.20 | 20 | 192.168.20.1 | 255.255.255.0 | No aplica |
-| R1-Core-luismgl | G0/0/0.30 | 30 | 192.168.30.1 | 255.255.255.0 | No aplica |
-| R1-Core-luismgl | G0/0/0.99 | 99 | 192.168.99.1 | 255.255.255.0 | No aplica |
-| SW-Core-luismgl | VLAN 99 | 99 | 192.168.99.2 | 255.255.255.0 | 192.168.99.1 |
-| SW-Lab1-luismgl | VLAN 99 | 99 | 192.168.99.3 | 255.255.255.0 | 192.168.99.1 |
-| SW-Lab2-luismgl | VLAN 99 | 99 | 192.168.99.4 | 255.255.255.0 | 192.168.99.1 |
+  --------------------------------------------------------------------------------------------------------------------------
+  Segmento                 VLAN Red/CIDR            Máscara           Primera IP       Última IP          Gateway
+                                                                      utilizable       utilizable         
+  ---------------- ------------ ------------------- ----------------- ---------------- ------------------ ------------------
+  Administración             10 `192.168.10.0/24`   `255.255.255.0`   `192.168.10.1`   `192.168.10.254`   `192.168.10.254`
 
-**Nota:** Las direcciones IP de administración de los switches son propuestas. La VLAN 111 se utiliza como VLAN nativa y no necesita una dirección IP si solo transporta tráfico sin etiquetar. La VLAN 999 se reserva para puertos inactivos.
+  Laboratorios               20 `192.168.20.0/24`   `255.255.255.0`   `192.168.20.1`   `192.168.20.254`   `192.168.20.254`
 
-## 3.2 Tabla B: Direccionamiento de dispositivos finales
+  Dirección                  30 `192.168.30.0/24`   `255.255.255.0`   `192.168.30.1`   `192.168.30.254`   `192.168.30.254`
 
-| Dispositivo | VLAN | Dirección IP | Máscara | Gateway |
-|---|---:|---|---|---|
-| PC-Gestión | 99 | 192.168.99.10 | 255.255.255.0 | 192.168.99.1 |
-| PC-Admin-A1 | 10 | 192.168.10.10 | 255.255.255.0 | 192.168.10.1 |
-| PC-Admin-A2 | 10 | 192.168.10.11 | 255.255.255.0 | 192.168.10.1 |
-| PC-Admin-A3 | 10 | 192.168.10.12 | 255.255.255.0 | 192.168.10.1 |
-| PC-Alumno-A1 | 20 | 192.168.20.10 | 255.255.255.0 | 192.168.20.1 |
-| PC-Alumno-A2 | 20 | 192.168.20.11 | 255.255.255.0 | 192.168.20.1 |
-| PC-Alumno-A3 | 20 | 192.168.20.12 | 255.255.255.0 | 192.168.20.1 |
-| PC-Dirección-A1 | 30 | 192.168.30.10 | 255.255.255.0 | 192.168.30.1 |
-| PC-Admin-B1 | 10 | 192.168.10.20 | 255.255.255.0 | 192.168.10.1 |
-| PC-Admin-B2 | 10 | 192.168.10.21 | 255.255.255.0 | 192.168.10.1 |
-| PC-Admin-B3 | 10 | 192.168.10.22 | 255.255.255.0 | 192.168.10.1 |
-| PC-Alumno-B1 | 20 | 192.168.20.20 | 255.255.255.0 | 192.168.20.1 |
-| PC-Alumno-B2 | 20 | 192.168.20.21 | 255.255.255.0 | 192.168.20.1 |
-| PC-Alumno-B3 | 20 | 192.168.20.22 | 255.255.255.0 | 192.168.20.1 |
-| PC-Dirección-B1 | 30 | 192.168.30.20 | 255.255.255.0 | 192.168.30.1 |
+  Gestión                    99 `192.168.99.0/24`   `255.255.255.0`   `192.168.99.1`   `192.168.99.254`   `192.168.99.254`
 
-## 3.3 Tabla C: Segmentación de VLAN
+  VLAN nativa               111 No especificada en  No especificada   No asignada      No asignada        No asignado
+                                el documento                                                              
 
-| VLAN | Nombre | Red IPv4 | Función | Ubicación |
-|---:|---|---|---|---|
-| 10 | ADMINISTRACION | 192.168.10.0/24 | Equipos administrativos | SW-Lab1 y SW-Lab2 |
-| 20 | LABORATORIOS | 192.168.20.0/24 | Equipos de alumnos | SW-Lab1 y SW-Lab2 |
-| 30 | DIRECCION | 192.168.30.0/24 | Equipos de dirección | SW-Lab1 y SW-Lab2 |
-| 99 | GESTION | 192.168.99.0/24 | Administración de switches |SW-Core, Fa0/9 |
-| 111 | NATIVA | Sin IP por defecto | VLAN nativa de enlaces troncales | Enlaces troncales |
-| 999 | BLACKHOLE | Sin IP | Puertos no utilizados |
+  Blackhole /               999 No se especifica    No especificada   No asignada      No asignada        No asignado
+  puertos                       una subred                                                                
+  inactivos                                                                                               
+  --------------------------------------------------------------------------------------------------------------------------
 
-## 4. Configuración lógica
+Las puertas de enlace de las VLAN 10, 20, 30 y 99 se configuran con la
+última IP utilizable de cada subred en las subinterfaces del router.
 
-- **R1-Core-luismgl:** realiza el enrutamiento entre las VLANs mediante subinterfaces en G0/0/0.
-- **SW-Core-luismgl:** conecta el router, SW-Lab1, SW-Lab2 y la PC de gestión.
-- **SW-Lab1-luismgl:** distribuye las VLANs a los dispositivos del edificio A.
-- **SW-Lab2-luismgl:** distribuye las VLANs a los dispositivos del edificio B.
-- **VLAN 111:** se configura como VLAN nativa en ambos extremos de cada enlace troncal.
-- **VLAN 99:** se utiliza para la gestión de la red.
-# Asignar nombre a los dispositivos con tus iniciales al final
+### 3.2 Direcciones SVI de los switches
 
-## 5. Consideraciones importantes
-```bash
-Router>enable
-Router#configure terminal
-Router(config)#hostname R1-Core-luismgl
-R1-Core-luismgl(config)#
+  --------------------------------------------------------------------------
+  Dispositivo       Interfaz VLAN     Dirección IP/CIDR   Gateway
+                                                          predeterminado
+  ----------------- ----------------- ------------------- ------------------
+  `SW-Core-luismgl`    `Vlan99`          `192.168.99.1/24`   `192.168.99.254`
+
+  `SW-Lab1-luismgl`    `Vlan99`          `192.168.99.2/24`   `192.168.99.254`
+
+  `SW-Lab2-luismgl`    `Vlan99`          `192.168.99.3/24`   `192.168.99.254`
+  --------------------------------------------------------------------------
+
+### 3.4 Tabla B. Hosts
+
+Se asignan direcciones estáticas consecutivas dentro de cada VLAN. La PC
+de gestión usa `192.168.99.4`, porque las direcciones `.1`, `.2` y `.3`
+se reservan para las SVI de los tres switches.
+
+  ----------------------------------------------------------------------------------------------
+  Dispositivo                      VLAN Dirección IP/CIDR   Máscara           Gateway
+                                                                              predeterminado
+  ------------------- ----------------- ------------------- ----------------- ------------------
+  PC-Admin-Lab1-1                    10 `192.168.10.1/24`   `255.255.255.0`   `192.168.10.254`
+
+  PC-Admin-Lab1-2                    10 `192.168.10.2/24`   `255.255.255.0`   `192.168.10.254`
+
+  PC-Admin-Lab1-3                    10 `192.168.10.3/24`   `255.255.255.0`   `192.168.10.254`
+
+  PC-Admin-Lab2-1                    10 `192.168.10.4/24`   `255.255.255.0`   `192.168.10.254`
+
+  PC-Admin-Lab2-2                    10 `192.168.10.5/24`   `255.255.255.0`   `192.168.10.254`
+
+  PC-Admin-Lab2-3                    10 `192.168.10.6/24`   `255.255.255.0`   `192.168.10.254`
+
+  PC-Alumno-Lab1-1                   20 `192.168.20.1/24`   `255.255.255.0`   `192.168.20.254`
+
+  PC-Alumno-Lab1-2                   20 `192.168.20.2/24`   `255.255.255.0`   `192.168.20.254`
+
+  PC-Alumno-Lab1-3                   20 `192.168.20.3/24`   `255.255.255.0`   `192.168.20.254`
+
+  PC-Alumno-Lab2-1                   20 `192.168.20.4/24`   `255.255.255.0`   `192.168.20.254`
+
+  PC-Alumno-Lab2-2                   20 `192.168.20.5/24`   `255.255.255.0`   `192.168.20.254`
+
+  PC-Alumno-Lab2-3                   20 `192.168.20.6/24`   `255.255.255.0`   `192.168.20.254`
+
+  PC-Direccion-Lab1                  30 `192.168.30.1/24`   `255.255.255.0`   `192.168.30.254`
+
+  PC-Direccion-Lab2                  30 `192.168.30.2/24`   `255.255.255.0`   `192.168.30.254`
+
+  PC-Gestion                         99 `192.168.99.4/24`   `255.255.255.0`   `192.168.99.254`
+  ----------------------------------------------------------------------------------------------
+
+> En cada PC: **Desktop → IP Configuration → Static**. Introduce la
+> dirección IP, la máscara y el gateway indicados en la tabla.
+
+------------------------------------------------------------------------
+
+## 4. Asignar nombre a los dispositivos con las iniciales LMGL
+
+Ejecuta en cada dispositivo, en modo privilegiado y luego en
+configuración global:
+
+### Router --- `R1-Core-luismgl`
+``` text
+enable
+configure terminal
+hostname R1-Core-LuisMGL
 ```
 
+### Switch central --- `SW-Core-luismgl`
+``` text
+enable
+configure terminal
+hostname SW-Core-LuisMGL
+```
+
+### Switch de acceso 1 --- `SW-Lab1-luismgl`
+
+``` text
+enable
+configure terminal
+hostname SW-Lab1-LuisMGL
+```
+### Switch de acceso 2 --- `SW-Lab2-luismgl`
+``` text
+enable
+configure terminal
+hostname SW-Lab2-LuisMGL
+```
+
+
+## 5. Consideraciones importantes
 1. Crear las VLANs necesarias en los switches.
 2. Configurar los enlaces troncales con la VLAN nativa 111 en ambos extremos.
 3. Configurar las subinterfaces del router con `encapsulation dot1Q`.
