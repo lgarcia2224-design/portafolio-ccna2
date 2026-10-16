@@ -454,7 +454,107 @@ Comprueba que los enlaces aparezcan como troncales, que la VLAN nativa
 sea 111 y que la lista permitida incluya `10,20,30,99,111`.
 
 ------------------------------------------------------------------------
+## 8. Configurar las SVI de administración y el gateway de los switches
 
+La VLAN 99 se usa para administrar los switches. Configura las
+siguientes direcciones.
+
+### 8.1 SW-Core-LuisMGL --- primera IP utilizable
+
+``` text
+SW-Core-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Core-LuisMGL(config)#interface vlan 99
+SW-Core-LuisMGL(config-if)# ip address 192.168.99.1 255.255.255.0
+SW-Core-LuisMGL(config-if)# no shutdown
+SW-Core-LuisMGL(config-if)#exit
+SW-Core-LuisMGL(config)#ip default-gateway 192.168.99.254
+SW-Core-LuisMGL(config)#end
+```
+
+### 8.2 SW-Lab1-LuisMGL --- segunda IP utilizable
+
+``` text
+SW-Lab1-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Lab1-LuisMGL(config)#interface vlan 99
+SW-Lab1-LuisMGL(config-if)# ip address 192.168.99.2 255.255.255.0
+SW-Lab1-LuisMGL(config-if)# no shutdown
+SW-Lab1-LuisMGL(config-if)#exit
+SW-Lab1-LuisMGL(config)#ip default-gateway 192.168.99.254
+SW-Lab1-LuisMGL(config)#end
+```
+
+### 8.3 SW-Lab2-LuisMGL --- tercera IP utilizable
+
+``` text
+SW-Lab2-LuisMGL#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW-Lab2-LuisMGL(config)#interface vlan 99
+SW-Lab2-LuisMGL(config-if)# ip address 192.168.99.3 255.255.255.0
+SW-Lab2-LuisMGL(config-if)# no shutdown
+SW-Lab2-LuisMGL(config-if)#exit
+SW-Lab2-LuisMGL(config)#ip default-gateway 192.168.99.254
+SW-Lab2-LuisMGL(config)#end
+%LINK-5-CHANGED: Interface Vlan99, changed state to up
+```
+
+Verifica en cada switch:
+
+``` text
+show ip interface brief
+show running-config
+```
+INVESTIGAR SHOW RUNNING-CONFIG
+
+La SVI puede permanecer `down` hasta que la VLAN exista y haya al menos
+un puerto activo que transporte esa VLAN. Comprueba también los enlaces
+y la VLAN 99 antes de diagnosticar una dirección IP.
+
+------------------------------------------------------------------------
+## 9. Configurar los puertos inactivos en VLAN 999 y apagarlos
+Usar VLAN 999 para puertos inactivos y apagarlos.
+Aplica este procedimiento en cada switch **solo a los puertos que
+confirmes que no están conectados a equipos ni se usan como enlaces**.
+No incluyas puertos de PCs, el puerto `Fa0/9` del PC de gestión ni los
+enlaces troncales.
+
+### 9.1 SW-Core-LuisMGL
+```bash
+configure terminal
+interface range range fa0/1 - fa0/8,fa0/10-fa0/22,gi0/2
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+exit
+end
+```
+```bash
+configure terminal
+interface range range fa0/8 - fa0/23,gi0/2
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+exit
+end
+```
+### 9.2 SW-Lab2-LuisMGL
+```bash
+configure terminal
+interface range range fa0/8 - fa0/22,fa0/24,gi0/2
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+exit
+end
+```
+Verifica:
+
+``` text
+show vlan brief
+show interfaces status
+```
+------------------------------------------------------------------------
 
 ## 5. Consideraciones importantes
 1. Crear las VLANs necesarias en los switches.
