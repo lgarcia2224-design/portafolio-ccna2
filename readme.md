@@ -197,7 +197,7 @@ consistente en los cuatro dispositivos;
 Ejecuta en **router y switchS**, después de establecer el
 `hostname`:
 
-``` text
+```bash
 enable
 config
 enable secret MODULO_PREFERIDO_MANEJOTE
