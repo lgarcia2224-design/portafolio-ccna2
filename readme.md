@@ -96,83 +96,52 @@ es `.1` y la última es `.254`.
 
 ### 3.1 Tabla A. Infraestructura
 
-  --------------------------------------------------------------------------------------------------------------------------
-  Segmento                 VLAN Red/CIDR            Máscara           Primera IP       Última IP          Gateway
-                                                                      utilizable       utilizable         
-  ---------------- ------------ ------------------- ----------------- ---------------- ------------------ ------------------
-  Administración             10 `192.168.10.0/24`   `255.255.255.0`   `192.168.10.1`   `192.168.10.254`   `192.168.10.254`
+  ### 3.1 Tabla de Direccionamiento de Segmentos / VLANs
 
-  Laboratorios               20 `192.168.20.0/24`   `255.255.255.0`   `192.168.20.1`   `192.168.20.254`   `192.168.20.254`
+| Segmento | VLAN | Red/CIDR | Máscara | Primera IP utilizable | Última IP utilizable | Gateway |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Administración | 10 | `192.168.10.0/24` | `255.255.255.0` | `192.168.10.1` | `192.168.10.254` | `192.168.10.254` |
+| Laboratorios | 20 | `192.168.20.0/24` | `255.255.255.0` | `192.168.20.1` | `192.168.20.254` | `192.168.20.254` |
+| Dirección | 30 | `192.168.30.0/24` | `255.255.255.0` | `192.168.30.1` | `192.168.30.254` | `192.168.30.254` |
+| Gestión | 99 | `192.168.99.0/24` | `255.255.255.0` | `192.168.99.1` | `192.168.99.254` | `192.168.99.254` |
+| VLAN nativa | 111 | No especificada en el documento | No especificada | No asignada | No asignada | No asignado |
+| Blackhole / puertos inactivos | 999 | No se especifica una subred | No especificada | No asignada | No asignada | No asignado |
 
-  Dirección                  30 `192.168.30.0/24`   `255.255.255.0`   `192.168.30.1`   `192.168.30.254`   `192.168.30.254`
+*Las puertas de enlace de las VLAN 10, 20, 30 y 99 se configuran con la última IP utilizable de cada subred en las subinterfaces del router.*
 
-  Gestión                    99 `192.168.99.0/24`   `255.255.255.0`   `192.168.99.1`   `192.168.99.254`   `192.168.99.254`
-
-  VLAN nativa               111 No especificada en  No especificada   No asignada      No asignada        No asignado
-                                el documento                                                              
-
-  Blackhole /               999 No se especifica    No especificada   No asignada      No asignada        No asignado
-  puertos                       una subred                                                                
-  inactivos                                                                                               
-  --------------------------------------------------------------------------------------------------------------------------
-
-Las puertas de enlace de las VLAN 10, 20, 30 y 99 se configuran con la
-última IP utilizable de cada subred en las subinterfaces del router.
+---
 
 ### 3.2 Direcciones SVI de los switches
 
-  --------------------------------------------------------------------------
-  Dispositivo       Interfaz VLAN     Dirección IP/CIDR   Gateway
-                                                          predeterminado
-  ----------------- ----------------- ------------------- ------------------
-  `SW-Core-luismgl`    `Vlan99`          `192.168.99.1/24`   `192.168.99.254`
+| Dispositivo | Interfaz VLAN | Dirección IP/CIDR | Gateway predeterminado |
+| :--- | :---: | :---: | :---: |
+| `SW-Core-luismgl` | `Vlan99` | `192.168.99.1/24` | `192.168.99.254` |
+| `SW-Lab1-luismgl` | `Vlan99` | `192.168.99.2/24` | `192.168.99.254` |
+| `SW-Lab2-luismgl` | `Vlan99` | `192.168.99.3/24` | `192.168.99.254` |
 
-  `SW-Lab1-luismgl`    `Vlan99`          `192.168.99.2/24`   `192.168.99.254`
-
-  `SW-Lab2-luismgl`    `Vlan99`          `192.168.99.3/24`   `192.168.99.254`
-  --------------------------------------------------------------------------
+---
 
 ### 3.4 Tabla B. Hosts
 
-Se asignan direcciones estáticas consecutivas dentro de cada VLAN. La PC
-de gestión usa `192.168.99.4`, porque las direcciones `.1`, `.2` y `.3`
-se reservan para las SVI de los tres switches.
+*Se asignan direcciones estáticas consecutivas dentro de cada VLAN. La PC de gestión usa `192.168.99.4`, porque las direcciones `.1`, `.2` y `.3` se reservan para las SVI de los tres switches.*
 
-  ----------------------------------------------------------------------------------------------
-  Dispositivo                      VLAN Dirección IP/CIDR   Máscara           Gateway
-                                                                              predeterminado
-  ------------------- ----------------- ------------------- ----------------- ------------------
-  PC-Admin-Lab1-1                    10 `192.168.10.1/24`   `255.255.255.0`   `192.168.10.254`
-
-  PC-Admin-Lab1-2                    10 `192.168.10.2/24`   `255.255.255.0`   `192.168.10.254`
-
-  PC-Admin-Lab1-3                    10 `192.168.10.3/24`   `255.255.255.0`   `192.168.10.254`
-
-  PC-Admin-Lab2-1                    10 `192.168.10.4/24`   `255.255.255.0`   `192.168.10.254`
-
-  PC-Admin-Lab2-2                    10 `192.168.10.5/24`   `255.255.255.0`   `192.168.10.254`
-
-  PC-Admin-Lab2-3                    10 `192.168.10.6/24`   `255.255.255.0`   `192.168.10.254`
-
-  PC-Alumno-Lab1-1                   20 `192.168.20.1/24`   `255.255.255.0`   `192.168.20.254`
-
-  PC-Alumno-Lab1-2                   20 `192.168.20.2/24`   `255.255.255.0`   `192.168.20.254`
-
-  PC-Alumno-Lab1-3                   20 `192.168.20.3/24`   `255.255.255.0`   `192.168.20.254`
-
-  PC-Alumno-Lab2-1                   20 `192.168.20.4/24`   `255.255.255.0`   `192.168.20.254`
-
-  PC-Alumno-Lab2-2                   20 `192.168.20.5/24`   `255.255.255.0`   `192.168.20.254`
-
-  PC-Alumno-Lab2-3                   20 `192.168.20.6/24`   `255.255.255.0`   `192.168.20.254`
-
-  PC-Direccion-Lab1                  30 `192.168.30.1/24`   `255.255.255.0`   `192.168.30.254`
-
-  PC-Direccion-Lab2                  30 `192.168.30.2/24`   `255.255.255.0`   `192.168.30.254`
-
-  PC-Gestion                         99 `192.168.99.4/24`   `255.255.255.0`   `192.168.99.254`
-  ----------------------------------------------------------------------------------------------
-
+| Dispositivo | VLAN | Dirección IP/CIDR | Máscara | Gateway predeterminado |
+| :--- | :---: | :---: | :---: | :---: |
+| PC-Admin-Lab1-1 | 10 | `192.168.10.1/24` | `255.255.255.0` | `192.168.10.254` |
+| PC-Admin-Lab1-2 | 10 | `192.168.10.2/24` | `255.255.255.0` | `192.168.10.254` |
+| PC-Admin-Lab1-3 | 10 | `192.168.10.3/24` | `255.255.255.0` | `192.168.10.254` |
+| PC-Admin-Lab2-1 | 10 | `192.168.10.4/24` | `255.255.255.0` | `192.168.10.254` |
+| PC-Admin-Lab2-2 | 10 | `192.168.10.5/24` | `255.255.255.0` | `192.168.10.254` |
+| PC-Admin-Lab2-3 | 10 | `192.168.10.6/24` | `255.255.255.0` | `192.168.10.254` |
+| PC-Alumno-Lab1-1 | 20 | `192.168.20.1/24` | `255.255.255.0` | `192.168.20.254` |
+| PC-Alumno-Lab1-2 | 20 | `192.168.20.2/24` | `255.255.255.0` | `192.168.20.254` |
+| PC-Alumno-Lab1-3 | 20 | `192.168.20.3/24` | `255.255.255.0` | `192.168.20.254` |
+| PC-Alumno-Lab2-1 | 20 | `192.168.20.4/24` | `255.255.255.0` | `192.168.20.254` |
+| PC-Alumno-Lab2-2 | 20 | `192.168.20.5/24` | `255.255.255.0` | `192.168.20.254` |
+| PC-Alumno-Lab2-3 | 20 | `192.168.20.6/24` | `255.255.255.0` | `192.168.20.254` |
+| PC-Direccion-Lab1 | 30 | `192.168.30.1/24` | `255.255.255.0` | `192.168.30.254` |
+| PC-Direccion-Lab2 | 30 | `192.168.30.2/24` | `255.255.255.0` | `192.168.30.254` |
+| PC-Gestion | 99 | `192.168.99.4/24` | `255.255.255.0` | `192.168.99.254` |
 > En cada PC: **Desktop → IP Configuration → Static**. Introduce la
 > dirección IP, la máscara y el gateway indicados en la tabla.
 
